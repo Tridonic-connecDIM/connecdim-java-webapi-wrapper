@@ -90,7 +90,7 @@ public class connecdimTest {
         assertTrue(MySite.isValid());
         
         assertEquals(1, MySite.getId());
-        assertEquals("Dali Lighting", MySite.getName());
+        assertEquals("Tridonic Wollongong", MySite.getName());
         assertEquals("13 First Avenue", MySite.getStreet());
         assertEquals("Unanderra", MySite.getCity());
         assertEquals("NSW", MySite.getState());
@@ -101,7 +101,9 @@ public class connecdimTest {
         assertEquals(0, MySite.getGroupBase());
         assertEquals(0, MySite.getSceneBase());
         
-        assertEquals("00134801DD18", MySite.getGateways().get(0).getMac());
+        assertEquals("00134801DD18", MySite.getGateways().get(0).getMac());        
+        
+        mysites.get(0).getGateways().get(0).getMac();
         
     }
     
@@ -135,6 +137,10 @@ public class connecdimTest {
         
         MyLine = MyTest.getLine("00134801DD18", 1);
         assertEquals(974509, MyLine.getFailedDevices().get(0).getId());
+        assertEquals(0, MyLine.getAddressesUnordered().get(0).getAddress());
+        
+        assertEquals(3, MyLine.getAddressHistory(3).get(0).getAddress());
+        assertEquals(20, MyLine.getAddressHistory(20).get(0).getAddress());
         
     }
     

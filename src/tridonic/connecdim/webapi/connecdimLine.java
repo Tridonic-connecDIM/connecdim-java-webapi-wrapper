@@ -13,20 +13,18 @@ import com.google.gson.JsonParser;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static tridonic.connecdim.webapi.connecdimApiAccessor.api_url;
 
 
 /**
  * DALI line that is associated to a connecdim gateway. Usually accessed with 
  * connecdimGateway.getLine( <i>Line Number</i> )
  *  
- * @version 1.0
+ * @version 1.1
  * @since   1.0
  * 
  * @author Jaie Demaagd
@@ -82,14 +80,14 @@ public class connecdimLine extends connecdimAddressContainer {
      * @param addressnumber the DALI address number of the address assuming
      * the address starts from 0
      *  
- * @version 1.0
- * @since   1.0
- * 
+     * @version 1.0
+     * @since   1.0
+     * 
      * @return the address object
      * 
      */   
     public connecdimAddress getAddress(int addressnumber) {
-        return get_address_with_test(addressnumber, false);        
+        return new connecdimAddress(this.userName, this.passKey, getId(), addressnumber, false);   
         
     }
 
@@ -101,28 +99,27 @@ public class connecdimLine extends connecdimAddressContainer {
      * the address starts from 0
      * @param isFirst specifies to return the first record
      *  
- * @version 1.0
- * @since   1.0
- * 
+     * @version 1.0
+     * @since   1.0
+     * 
      * @return the address object
      * 
      */       
     public connecdimAddress getAddress(int addressnumber, boolean isFirst) {
-        return get_address_with_test(addressnumber, isFirst);      
+        return new connecdimAddress(this.userName, this.passKey, getId(), addressnumber, isFirst);   
         
     }
     
-    private connecdimAddress get_address_with_test(int addressnumber, boolean isFirst) {
-        connecdimAddress x = new connecdimAddress(this.userName, this.passKey, getId(), addressnumber, isFirst);
-        return x;  
-    }
+    //private connecdimAddress get_address_with_test(int addressnumber, boolean isFirst) {
+    //    return new connecdimAddress(this.userName, this.passKey, getId(), addressnumber, isFirst);
+    //}
 
     /**
      * Returns a DALI group in the DALI line
      *  
- * @version 1.0
- * @since   1.0
- * 
+     * @version 1.0
+     * @since   1.0
+     * 
      * @param groupnumber The DALI Group ID starting from 0
      * @return the DALI group object
      * 
@@ -162,6 +159,160 @@ public class connecdimLine extends connecdimAddressContainer {
         return get_web_request(api);
         
     }  
+    
+
+/**
+* Retrieve all active DALI Addresses that are associated with this Line, note 
+* that the array index is not related to the DALI address number
+*  
+* @version 1.1
+* @since   1.1
+* 
+* @return Array list of connecdimGateway objects
+* 
+*/        
+    public List<connecdimAddress> getAddressesUnordered() {              
+        
+        if (!ObjectError){
+            String APIHtml = get_addresses_api();
+            List<connecdimAddress> addresses = new ArrayList<>();
+            parse_data_addresses_objects(APIHtml, addresses);
+            return addresses;
+        
+        } else {
+            return null;    // becuase if the username password was wrong there
+                            // is nothing to return
+        
+        }
+    }       
+    
+    
+/**
+* Retrieve the most recent ten records of historical data for the address
+* 
+* @version 1.1
+* @since   1.1
+* 
+* @param address The DALI address the history should relate to
+* 
+* @return Array list of connecdimGateway objects
+* 
+*/
+    public List<connecdimAddress> getAddressHistory(int address) {              
+        
+        return getAddressHistory(address, 10);
+
+    }       
+        
+    
+/**
+* Retrieve historical data for the address up to a certain number of records
+*  
+* @version 1.1
+* @since   1.1
+* 
+* @param address The DALI address the history should relate to
+* @param limit The number of historical cloud records
+* 
+* @return Array list of connecdimGateway objects
+* 
+*/        
+    public List<connecdimAddress> getAddressHistory(int address, int limit) {              
+        
+        if (!ObjectError){
+            String APIHtml = get_history_api(address, limit);
+            List<connecdimAddress> addresses = new ArrayList<>();
+            parse_data_addresses_objects(APIHtml, addresses);
+            return addresses;
+        
+        } else {
+            return null;    // becuase if the username password was wrong there
+                            // is nothing to return
+        
+        }
+    }       
+    
+    
+/**
+* Ask the server for the addresses api collection
+*  
+* @version 1.1
+* @since   1.1
+* 
+* @return string api reply from server
+* 
+*/       
+    private String get_addresses_api () {
+        
+        // builds the api call to receive dali line information and returns the result
+        URL api = null;
+        try {
+            api = new URL(this.api_url + "devices/?method=get&ident=" + this.userName + "&key=" + this.passKey + "&filter=lineId::" + this.getId() + "|isCurrent::true&limit=64" );
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(connecdimLine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return get_web_request(api);
+        
+    }       
+    
+    
+/**
+* Ask the server for the addresses api collection
+*  
+* @version 1.1
+* @since   1.1
+* 
+* @return string api reply from server
+* 
+*/       
+    private String get_history_api (int address, int limit) {
+        
+        // builds the api call to receive dali line information and returns the result
+        URL api = null;
+        try {
+            api = new URL(this.api_url + "devices/?method=get&ident=" + this.userName + "&key=" + this.passKey + "&filter=lineId::" + this.getId() + "|address::" + address + "&limit=" + limit);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(connecdimLine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return get_web_request(api);
+        
+    }      
+    
+/**
+* Parse the api values and turn them into address objects
+*  
+* @version 1.1
+* @since   1.1
+* 
+* @return string api reply from server
+* 
+*/  
+    private void parse_data_addresses_objects(String HtmlReturn, List<connecdimAddress> lines) {
+        
+        JsonElement da_json = new JsonParser().parse(HtmlReturn);
+        JsonObject da_top_object = da_json.getAsJsonObject();
+        
+        JsonElement da_line_element;
+        JsonObject da_line_object;
+        
+        int i;
+        
+        // find and pull out the line object from JSON
+        if (da_top_object.has("data")) {
+            JsonArray da_array = da_top_object.getAsJsonArray("data");
+            
+            i = 0;
+            while (i < da_array.size()) {
+                da_line_element = da_array.get(i);
+                da_line_object = da_line_element.getAsJsonObject();
+                i++;
+                
+                connecdimAddress xAddress = new connecdimAddress(this.userName, this.passKey, da_line_object);
+                lines.add(xAddress);
+                
+            }            
+        }   
+    }    
     
     
 /**

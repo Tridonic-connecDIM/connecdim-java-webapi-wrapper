@@ -123,6 +123,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI address
  */    
     public int getAddress() {
         return (this.ObjectError) ? -1:this.da_object.get("address").getAsInt();
@@ -132,6 +134,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI Arc Power
  */    
     public int getDimLevel() {
         return (this.ObjectError) ? -1:this.da_object.get("dimLevel").getAsInt();
@@ -141,6 +145,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI Lamp Fail
  */    
     public boolean isLampFail() {
         return (this.ObjectError) ? false:this.da_object.get("lampFail").getAsBoolean();
@@ -150,6 +156,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI Power Recover Flag
  */    
     public boolean isPowerRecover() {
         return (this.ObjectError) ? false:this.da_object.get("powerRecover").getAsBoolean();
@@ -159,6 +167,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI Limit Error
  */    
     public boolean isLimitError() {
         return (this.ObjectError) ? false:this.da_object.get("limitError").getAsBoolean();
@@ -169,6 +179,8 @@ public class connecdimAddress extends connecdimApiAccessor {
  *  DALI Specification Device Type 1 Emergency
  * @version 1.0
  * @since   1.0
+ * 
+ * @return DALI Emergency Status
  */    
     public int getEmergencyStatus() {
         return json_get_int("emergencyStatus");
